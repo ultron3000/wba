@@ -63,9 +63,31 @@
     .search-container.focused {
       box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.3);
     }
+    .filter-btn {
+      border: 1px solid #374151;
+      border-radius: 9999px;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+      background-color: #1f2937;
+      color: #9ca3af;
+    }
+    .filter-btn:hover {
+      background-color: #374151;
+      color: white;
+    }
     .filter-btn.active {
       background-color: #0077ff;
       color: white;
+      border-color: #0077ff;
+    }
+    .light-mode .filter-btn {
+      background-color: #e5e7eb;
+      color: #4b5563;
+      border-color: #d1d5db;
+    }
+    .light-mode .filter-btn:hover {
+      background-color: #d1d5db;
     }
     .light-mode .filter-btn.active {
       background-color: #0077ff;
@@ -74,6 +96,7 @@
     .light-mode .episode-card {
       background-color: white;
       color: #111827;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     .light-mode .text-gray-300 {
       color: #4b5563;
@@ -89,6 +112,54 @@
     }
     .light-mode .border-gray-800 {
       border-color: #d1d5db;
+    }
+    .glow-text {
+      text-shadow: 0 0 8px rgba(0, 119, 255, 0.6);
+    }
+    .category-badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .category-dc {
+      background-color: rgba(0, 119, 255, 0.2);
+      color: #0077ff;
+    }
+    .category-batman {
+      background-color: rgba(0, 0, 0, 0.2);
+      color: #000000;
+    }
+    .category-superman {
+      background-color: rgba(255, 0, 0, 0.2);
+      color: #ff0000;
+    }
+    .category-justice {
+      background-color: rgba(75, 85, 99, 0.2);
+      color: #4b5563;
+    }
+    .category-other {
+      background-color: rgba(156, 163, 175, 0.2);
+      color: #9ca3af;
+    }
+    .play-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: all 0.3s ease;
+      background-color: rgba(0, 119, 255, 0.8);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
     }
   </style>
 </head>
@@ -132,7 +203,7 @@
         </div>
         <div class="flex items-center">
           <span class="text-gray-400 mr-2">Sort by:</span>
-          <select id="sort-select" class="bg-gray-800 text-white rounded px-3 py-1">
+          <select id="sort-select" class="bg-gray-800 text-white rounded px-3 py-1 border border-gray-700">
             <option value="year-desc">Newest First</option>
             <option value="year-asc">Oldest First</option>
             <option value="rating-desc">Highest Rated</option>
@@ -143,7 +214,7 @@
         </div>
       </div>
       
-      <div id="episodes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
+      <div id="episodes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
       
       <div id="no-results" class="text-center py-12 hidden">
         <i class="fas fa-film text-5xl text-gray-500 mb-4"></i>
@@ -166,7 +237,7 @@
           <div>
             <h3 id="modal-title" class="text-2xl font-bold mb-1 text-white"></h3>
             <div class="text-gray-400 text-sm">
-              <span id="modal-category" class="dc-blue text-white px-2 py-0.5 rounded-full text-xs"></span> • <span id="episode-num"></span> • <span id="modal-runtime"></span> • <span class="text-blue-400" id="modal-rating"></span>
+              <span id="modal-category" class="category-badge px-2 py-0.5 rounded-full text-xs"></span> • <span id="episode-num"></span> • <span id="modal-runtime"></span> • <span class="text-blue-400" id="modal-rating"></span>
             </div>
           </div>
           <div class="flex space-x-3">
@@ -180,7 +251,7 @@
         </div>
         <p id="modal-description" class="text-gray-300 mb-6"></p>
         <div class="flex space-x-4">
-          <button class="dc-blue hover:bg-blue-600 text-white font-semibold py-3 px-8 rounded-full flex items-center transition transform hover:scale-105">
+          <button id="play-button" class="dc-blue hover:bg-blue-600 text-white font-semibold py-3 px-8 rounded-full flex items-center transition transform hover:scale-105">
             <i class="fas fa-play mr-2"></i> Play
           </button>
           <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-8 rounded-full flex items-center transition">
@@ -326,6 +397,186 @@
         description: "The Flash creates a fractured reality where the Justice League never formed and a war rages between Aquaman and Wonder Woman.",
         director: "Jay Oliva",
         cast: "Justin Chambers, Kevin McKidd, C. Thomas Howell"
+      },
+      { 
+        title: "Justice League: Doom", 
+        year: 2012,
+        category: "justice",
+        video: "https://example.com/video6.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BYmIwNjg5NjItZjRmZi00MDVlLThhYmQtNTBmNTRiY2I5Nzg1XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+        runtime: "77 min",
+        rating: "7.4/10",
+        description: "Vandal Savage uses information from Batman's secret files in a plot to wipe out the Justice League.",
+        director: "Lauren Montgomery",
+        cast: "Kevin Conroy, Tim Daly, Susan Eisenberg"
+      },
+      { 
+        title: "Batman: The Long Halloween, Part One", 
+        year: 2021,
+        category: "batman",
+        video: "https://example.com/video7.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BN2Y1OGU1ZDktYzVhNy00MzQ3LTg1OTMtMmVjMWQzZDAyMDQ0XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "85 min",
+        rating: "8.0/10",
+        description: "Batman, Captain Gordon and District Attorney Harvey Dent team up to bring down the Falcone crime family.",
+        director: "Chris Palmer",
+        cast: "Jensen Ackles, Josh Duhamel, Naya Rivera"
+      },
+      { 
+        title: "Batman: The Long Halloween, Part Two", 
+        year: 2021,
+        category: "batman",
+        video: "https://example.com/video8.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BZWI1YzU1YzUtYTQ5ZS00YzI0LTk0YjEtN2JlOTI0MDg4ZWI5XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "87 min",
+        rating: "8.1/10",
+        description: "The conclusion of the Long Halloween mystery as Batman races against time to stop Holiday.",
+        director: "Chris Palmer",
+        cast: "Jensen Ackles, Josh Duhamel, Naya Rivera"
+      },
+      { 
+        title: "Superman: Man of Tomorrow", 
+        year: 2020,
+        category: "superman",
+        video: "https://example.com/video9.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNzY3ZDU0YTktYjVjMS00YmM1LThkY2ItOTQ4Y2ExOTFlMDAxXkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "86 min",
+        rating: "7.6/10",
+        description: "Clark Kent takes his first steps toward becoming the legendary Man of Steel in this thrilling origin story.",
+        director: "Chris Palmer",
+        cast: "Darren Criss, Zachary Quinto, Alexandra Daddario"
+      },
+      { 
+        title: "Superman: Red Son", 
+        year: 2020,
+        category: "superman",
+        video: "https://example.com/video10.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNzRmN2U1YzItYjQ1Yi00YTVlLWI5ODEtYzIyZTU5MGY5YzBlXkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "84 min",
+        rating: "7.8/10",
+        description: "An alternate history of Superman where his ship lands in Soviet Russia instead of Kansas.",
+        director: "Sam Liu",
+        cast: "Jason Isaacs, Amy Acker, Diedrich Bader"
+      },
+      { 
+        title: "Justice League Dark: Apokolips War", 
+        year: 2020,
+        category: "justice",
+        video: "https://example.com/video11.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNzQ2OTk1OTEtNWE0ZS00MWEwLWJhYjQtYjg1NGY0NWNjZDNmXkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "90 min",
+        rating: "8.3/10",
+        description: "The Justice League leads a last stand against Darkseid in this epic conclusion to the DCAMU.",
+        director: "Matt Peters",
+        cast: "Jerry O'Connell, Taissa Farmiga, Rosario Dawson"
+      },
+      { 
+        title: "Batman: Hush", 
+        year: 2019,
+        category: "batman",
+        video: "https://example.com/video12.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNWY1N2I1NmItMDY3MS00NzFhLTk0YzQtYjQ3OWYwZjc4YjY1XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "82 min",
+        rating: "7.5/10",
+        description: "Batman faces a mysterious villain known as Hush who seems to know all of his secrets.",
+        director: "Justin Copeland",
+        cast: "Jason O'Mara, Jennifer Morrison, Geoffrey Arend"
+      },
+      { 
+        title: "Reign of the Supermen", 
+        year: 2019,
+        category: "superman",
+        video: "https://example.com/video13.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNzJhMDFkMjQtZDIyNy00YjUwLTk0NTctYzUxN2Q5YzllZDFkXkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "87 min",
+        rating: "7.7/10",
+        description: "In the aftermath of Superman's death, four new Supermen emerge to claim his legacy.",
+        director: "Sam Liu",
+        cast: "Jerry O'Connell, Rebecca Romijn, Rainn Wilson"
+      },
+      { 
+        title: "The Death of Superman", 
+        year: 2018,
+        category: "superman",
+        video: "https://example.com/video14.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNzJkN2Y1OWYtY2RhOC00MWU0LTg2MTQtYzI0ZTk3YjM5ZGM5XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "81 min",
+        rating: "7.6/10",
+        description: "Superman makes the ultimate sacrifice to save Metropolis from the unstoppable force of Doomsday.",
+        director: "Sam Liu",
+        cast: "Jerry O'Connell, Rebecca Romijn, Rainn Wilson"
+      },
+      { 
+        title: "Batman: Gotham by Gaslight", 
+        year: 2018,
+        category: "batman",
+        video: "https://example.com/video15.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRlYzI3ZmUtZTJjNi00ODFhLTk2OTgtYzQ0ZWIwY2JkODM5XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "78 min",
+        rating: "7.2/10",
+        description: "Batman hunts Jack the Ripper in an alternate Victorian-era Gotham City.",
+        director: "Sam Liu",
+        cast: "Bruce Greenwood, Jennifer Carpenter, Anthony Head"
+      },
+      { 
+        title: "Batman: Bad Blood", 
+        year: 2016,
+        category: "batman",
+        video: "https://example.com/video16.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNzU5MWI5MWQtNzA2NC00MGY1LTgwY2QtNDk0Nzg2NGUyN2NhXkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "72 min",
+        rating: "7.1/10",
+        description: "When Batman goes missing, Nightwing and Robin must protect Gotham from a new threat.",
+        director: "Jay Oliva",
+        cast: "Jason O'Mara, Stuart Allan, Yvonne Strahovski"
+      },
+      { 
+        title: "Justice League vs. Teen Titans", 
+        year: 2016,
+        category: "justice",
+        video: "https://example.com/video17.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BMTQ5MjM0NDA1NV5BMl5BanBnXkFtZTgwOTI4NzU5NzE@._V1_.jpg",
+        runtime: "79 min",
+        rating: "7.3/10",
+        description: "The Justice League and Teen Titans must join forces when Raven's father Trigon threatens Earth.",
+        director: "Sam Liu",
+        cast: "Jerry O'Connell, Jon Bernthal, Taissa Farmiga"
+      },
+      { 
+        title: "Justice League: Throne of Atlantis", 
+        year: 2015,
+        category: "justice",
+        video: "https://example.com/video18.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BMTg5OTk5OTU5OV5BMl5BanBnXkFtZTgwODc0NzU5NjE@._V1_.jpg",
+        runtime: "72 min",
+        rating: "7.0/10",
+        description: "Aquaman must embrace his destiny to prevent a war between Atlantis and the surface world.",
+        director: "Ethan Spaulding",
+        cast: "Matt Lanter, Sumalee Montano, Jerry O'Connell"
+      },
+      { 
+        title: "Batman vs. Robin", 
+        year: 2015,
+        category: "batman",
+        video: "https://example.com/video19.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BMTk0NjgyOTg1OV5BMl5BanBnXkFtZTgwODQwNDI5NDE@._V1_.jpg",
+        runtime: "80 min",
+        rating: "7.5/10",
+        description: "Batman and Robin clash when Damian falls under the influence of the mysterious Court of Owls.",
+        director: "Jay Oliva",
+        cast: "Jason O'Mara, Stuart Allan, Jeremy Sisto"
+      },
+      { 
+        title: "Justice League: War", 
+        year: 2014,
+        category: "justice",
+        video: "https://example.com/video20.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BMTQ5MjM0NDA1NV5BMl5BanBnXkFtZTgwOTI4NzU5NzE@._V1_.jpg",
+        runtime: "79 min",
+        rating: "7.3/10",
+        description: "The Justice League forms for the first time to stop Darkseid's invasion of Earth.",
+        director: "Jay Oliva",
+        cast: "Alan Tudyk, Michelle Monaghan, Justin Kirk"
       },
       { 
         title: "Justice League: Doom", 
@@ -1712,72 +1963,292 @@
       }
     ];
 
-    const container = document.getElementById('episodes');
+    // DOM Elements
+    const episodesContainer = document.getElementById('episodes');
+    const searchInput = document.getElementById('search-input');
+    const clearSearch = document.getElementById('clear-search');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const sortSelect = document.getElementById('sort-select');
+    const noResults = document.getElementById('no-results');
+    const themeToggle = document.getElementById('theme-toggle');
+    const searchContainer = document.querySelector('.search-container');
     const playbackModal = document.getElementById('playback-modal');
     const closeModal = document.getElementById('close-modal');
     const modalVideo = document.getElementById('modal-video');
     const modalTitle = document.getElementById('modal-title');
+    const modalCategory = document.getElementById('modal-category');
+    const modalRuntime = document.getElementById('modal-runtime');
+    const modalRating = document.getElementById('modal-rating');
     const modalDescription = document.getElementById('modal-description');
-    const episodeNum = document.getElementById('episode-num');
     const modalCast = document.getElementById('modal-cast');
+    const playButton = document.getElementById('play-button');
 
-    function isStream(url) {
-      return url.includes('.m3u8') || url.includes('.txt');
+    // Current filter state
+    let currentFilter = 'all';
+    let currentSearch = '';
+    let currentSort = 'year-desc';
+
+    // Initialize the page
+    function init() {
+      renderMovies();
+      setupEventListeners();
     }
 
-    function openModal(movie, episodeNumber) {
-      modalTitle.textContent = movie.title;
-      modalDescription.textContent = movie.description;
-      episodeNum.textContent = movie.year;
-      modalCast.textContent = movie.cast;
-      modalVideo.src = movie.video;
-
-      playbackModal.classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-      modalVideo.play();
-    }
-
-    function closeModalHandler() {
-      playbackModal.classList.add('hidden');
-      modalVideo.pause();
-      modalVideo.src = "";
-      document.body.style.overflow = '';
-    }
-
-    closeModal.addEventListener('click', closeModalHandler);
-
-    // Render movie cards
-    movies.forEach((movie, index) => {
-      const card = document.createElement('div');
-      card.className = 'episode-card cursor-pointer bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 relative';
-      card.innerHTML = `
-        <div class="relative">
-          <img src="${movie.image}" alt="${movie.title}" class="w-full h-48 md:h-56 object-cover">
-          <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 transition">
-            <div class="play-icon absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 dc-blue bg-opacity-90 rounded-full w-12 h-12 flex items-center justify-center opacity-0 transition">
-              <i class="fas fa-play text-white"></i>
-            </div>
-          </div>
-          <span class="absolute top-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">${movie.runtime}</span>
-        </div>
-        <div class="p-4">
-          <div class="flex justify-between items-start mb-1">
-            <h2 class="text-lg font-semibold text-white">${movie.title}</h2>
-            <span class="text-blue-400 text-sm">${movie.rating}</span>
-          </div>
-          <p class="text-sm text-gray-400">${movie.year}</p>
-        </div>
-      `;
-      card.addEventListener('click', () => {
-        if (isStream(movie.video)) {
-          const url = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}&index=${index}`;
-          window.location.hurl = url;
-        } else {
-          openModal(movie, index + 1);
+    // Render movies based on current filters and search
+    function renderMovies() {
+      episodesContainer.innerHTML = '';
+      
+      let filteredMovies = [...movies];
+      
+      // Apply search filter
+      if (currentSearch) {
+        filteredMovies = filteredMovies.filter(movie => 
+          movie.title.toLowerCase().includes(currentSearch.toLowerCase())
+        );
+      }
+      
+      // Apply category filter
+      if (currentFilter !== 'all') {
+        filteredMovies = filteredMovies.filter(movie => 
+          movie.category === currentFilter
+        );
+      }
+      
+      // Apply sorting
+      filteredMovies.sort((a, b) => {
+        switch(currentSort) {
+          case 'year-desc':
+            return b.year - a.year;
+          case 'year-asc':
+            return a.year - b.year;
+          case 'rating-desc':
+            return parseFloat(b.rating) - parseFloat(a.rating);
+          case 'rating-asc':
+            return parseFloat(a.rating) - parseFloat(b.rating);
+          case 'title-asc':
+            return a.title.localeCompare(b.title);
+          case 'title-desc':
+            return b.title.localeCompare(a.title);
+          default:
+            return 0;
         }
       });
-      container.appendChild(card);
-    });
+      
+      // Display no results message if no movies match filters
+      if (filteredMovies.length === 0) {
+        noResults.classList.remove('hidden');
+      } else {
+        noResults.classList.add('hidden');
+        filteredMovies.forEach(movie => {
+          const movieElement = createMovieElement(movie);
+          episodesContainer.appendChild(movieElement);
+        });
+      }
+    }
+
+    // Create movie card element
+    function createMovieElement(movie) {
+      const movieElement = document.createElement('div');
+      movieElement.className = 'episode-card bg-gray-800 rounded-xl overflow-hidden transition transform hover:scale-105 hover:shadow-lg relative';
+      
+      // Determine category badge class
+      let categoryClass = '';
+      switch(movie.category) {
+        case 'dc':
+          categoryClass = 'category-dc';
+          break;
+        case 'batman':
+          categoryClass = 'category-batman';
+          break;
+        case 'superman':
+          categoryClass = 'category-superman';
+          break;
+        case 'justice':
+          categoryClass = 'category-justice';
+          break;
+        default:
+          categoryClass = 'category-other';
+      }
+      
+      movieElement.innerHTML = `
+        <div class="relative">
+          <img src="${movie.image}" alt="${movie.title}" class="w-full h-64 object-cover">
+          <div class="play-icon">
+            <i class="fas fa-play"></i>
+          </div>
+        </div>
+        <div class="p-4">
+          <div class="flex justify-between items-start mb-2">
+            <h3 class="font-bold text-lg truncate">${movie.title}</h3>
+            <span class="text-blue-400 text-sm font-semibold">${movie.rating}</span>
+          </div>
+          <div class="flex justify-between items-center text-sm text-gray-400 mb-3">
+            <span>${movie.year}</span>
+            <span>${movie.runtime}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="category-badge ${categoryClass}">${getCategoryName(movie.category)}</span>
+            <button class="text-gray-400 hover:text-white transition">
+              <i class="fas fa-ellipsis-h"></i>
+            </button>
+          </div>
+        </div>
+      `;
+      
+      // Add click event to play video
+      movieElement.addEventListener('click', (e) => {
+        // Don't trigger if clicking on ellipsis button
+        if (!e.target.closest('button')) {
+          if (movie.video.endsWith('.mp4')) {
+            openModal(movie);
+          } else {
+            // For .txt and .m3u8 links, open in player.html
+            window.open(`player.html?video=${encodeURIComponent(movie.video)}&title=${encodeURIComponent(movie.title)}`, '_blank');
+          }
+        }
+      });
+      
+      return movieElement;
+    }
+
+    // Get display name for category
+    function getCategoryName(category) {
+      switch(category) {
+        case 'dc': return 'DC';
+        case 'batman': return 'Batman';
+        case 'superman': return 'Superman';
+        case 'justice': return 'Justice League';
+        default: return 'Other';
+      }
+    }
+
+    // Open modal with movie details
+    function openModal(movie) {
+      modalTitle.textContent = movie.title;
+      modalRuntime.textContent = movie.runtime;
+      modalRating.textContent = movie.rating;
+      modalDescription.textContent = movie.description;
+      modalCast.textContent = movie.cast;
+      
+      // Set category badge
+      modalCategory.className = 'category-badge px-2 py-0.5 rounded-full text-xs';
+      switch(movie.category) {
+        case 'dc':
+          modalCategory.classList.add('category-dc');
+          break;
+        case 'batman':
+          modalCategory.classList.add('category-batman');
+          break;
+        case 'superman':
+          modalCategory.classList.add('category-superman');
+          break;
+        case 'justice':
+          modalCategory.classList.add('category-justice');
+          break;
+        default:
+          modalCategory.classList.add('category-other');
+      }
+      modalCategory.textContent = getCategoryName(movie.category);
+      
+      // Set video source
+      modalVideo.src = movie.video;
+      modalVideo.poster = movie.image;
+      
+      // Show modal
+      playbackModal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Close modal
+    function closePlaybackModal() {
+      playbackModal.classList.add('hidden');
+      document.body.style.overflow = '';
+      modalVideo.pause();
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+      // Search input
+      searchInput.addEventListener('input', (e) => {
+        currentSearch = e.target.value;
+        if (currentSearch) {
+          clearSearch.classList.remove('hidden');
+        } else {
+          clearSearch.classList.add('hidden');
+        }
+        renderMovies();
+      });
+      
+      // Clear search
+      clearSearch.addEventListener('click', () => {
+        searchInput.value = '';
+        currentSearch = '';
+        clearSearch.classList.add('hidden');
+        renderMovies();
+      });
+      
+      // Filter buttons
+      filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          filterButtons.forEach(btn => btn.classList.remove('active'));
+          button.classList.add('active');
+          currentFilter = button.dataset.filter;
+          renderMovies();
+        });
+      });
+      
+      // Sort select
+      sortSelect.addEventListener('change', (e) => {
+        currentSort = e.target.value;
+        renderMovies();
+      });
+      
+      // Theme toggle
+      themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('light-mode');
+        if (document.body.classList.contains('light-mode')) {
+          themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        } else {
+          themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        }
+      });
+      
+      // Search container focus
+      searchInput.addEventListener('focus', () => {
+        searchContainer.classList.add('focused');
+      });
+      
+      searchInput.addEventListener('blur', () => {
+        searchContainer.classList.remove('focused');
+      });
+      
+      // Modal close
+      closeModal.addEventListener('click', closePlaybackModal);
+      playbackModal.addEventListener('click', (e) => {
+        if (e.target === playbackModal) {
+          closePlaybackModal();
+        }
+      });
+      
+      // Play button in modal
+      playButton.addEventListener('click', () => {
+        if (modalVideo.paused) {
+          modalVideo.play();
+          playButton.innerHTML = '<i class="fas fa-pause mr-2"></i> Pause';
+        } else {
+          modalVideo.pause();
+          playButton.innerHTML = '<i class="fas fa-play mr-2"></i> Play';
+        }
+      });
+      
+      // Video ended event
+      modalVideo.addEventListener('ended', () => {
+        playButton.innerHTML = '<i class="fas fa-play mr-2"></i> Play';
+      });
+    }
+
+    // Initialize the app
+    init();
   </script>
 </body>
 </html>
