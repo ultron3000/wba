@@ -54,22 +54,18 @@
     }
   </style>
 </head>
-<body>
-  <div class="showcase-header">
-    <header class="bg-gradient-to-b from-black to-transparent py-4 px-6">
-      <div class="container mx-auto flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-          <div class="w-10 h-10 dc-blue rounded-full flex items-center justify-center">
-            <i class="fas fa-play text-white"></i>
-          </div>
-          <h1 class="text-xl font-bold text-white">WB<span class="text-blue-400">Animation</span></h1>
+<body class="bg-black text-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-black to-gray-900 py-6 px-4 shadow-lg border-b border-yellow-500">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center mb-4 md:mb-0">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Warner_Bros_logo.svg/1965px-Warner_Bros_logo.svg.png" 
+                     alt="Warner Bros. Logo" 
+                     class="h-12 mr-4">
+                <h1 class="text-3xl md:text-4xl font-bold text-yellow-400 glow-text">
+                    Animation
+                </h1>
         </div>
-        <nav class="hidden md:flex space-x-6">
-          <a href="#" class="text-white hover:text-blue-400 transition">Home</a>
-          <a href="#" class="text-white hover:text-blue-400 transition">Movies</a>
-          <a href="#" class="text-white hover:text-blue-400 transition">Characters</a>
-          <a href="#" class="text-white hover:text-blue-400 transition">Gallery</a>
-        </nav>
         <button class="md:hidden text-2xl text-white">
           <i class="fas fa-bars"></i>
         </button>
@@ -78,7 +74,7 @@
 
     <div class="container mx-auto px-4 flex-1 flex items-center">
       <div class="max-w-4xl">
-        <h1 class="text-5xl md:text-6xl font-bold mb-4 gradient-text">Warner Bros. Animation</h1>
+        <h1 class="text-5xl md:text-6xl font-bold mb-4 gradient-text"></h1>
         <div class="flex items-center space-x-4 mb-6">
           <span class="dc-blue text-white px-3 py-1 rounded-full text-sm font-semibold">DC Universe</span>
           <span class="text-gray-400">2007-2024</span>
@@ -90,23 +86,7 @@
           Mortal Kombat Legends, and more. From Batman to Justice League, these animated features bring your favorite 
           comic book stories to life.
         </p>
-        <div class="flex space-x-4">
-          <button class="dc-blue hover:bg-blue-600 text-white font-semibold py-3 px-8 rounded-full flex items-center transition transform hover:scale-105">
-            <i class="fas fa-play mr-2"></i> Featured
-          </button>
-          <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-8 rounded-full flex items-center transition">
-            <i class="fas fa-plus mr-2"></i> My List
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <main class="container mx-auto px-4 pb-16">
-    <h2 class="text-3xl font-bold mb-8 flex items-center text-white">
-      <span class="mr-4">Featured Movies</span>
-      <span class="text-blue-400 text-xl">DC Universe</span>
-    </h2>
+        
     
     <div id="episodes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
   </main>
