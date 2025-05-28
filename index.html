@@ -5,51 +5,7 @@
   <title>Warner Bros. Animation Collection | DC Universe Movies</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Stream all Warner Bros. Animation movies including DC Universe animated films and Mortal Kombat Legends.">
-  <script src="https://cdn.tailwindcss.com">
-function openMovie(movie, index) {
-  const ext = movie.video.split('.').pop().split('?')[0];
-  if (ext === "mp4") {
-    document.getElementById("modal-title").textContent = movie.title;
-    document.getElementById("modal-description").textContent = movie.description || "";
-    document.getElementById("episode-num").textContent = index + 1;
-    const videoElem = document.getElementById("modal-video");
-    videoElem.src = movie.video;
-    videoElem.load();
-    document.getElementById("playback-modal").classList.remove("hidden");
-    document.body.style.overflow = "hidden";
-  } else {
-    window.location.href = `player.html?video=${encodeURIComponent(movie.video)}`;
-  }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const container = document.getElementById("episodes");
-  if (!container) return;
-  container.innerHTML = "";
-  movies.forEach((movie, idx) => {
-    const card = document.createElement("div");
-    card.className = "episode-card bg-gray-800 rounded-lg overflow-hidden shadow-lg relative cursor-pointer";
-    card.innerHTML = `
-      <div class="relative">
-        <img src="${movie.image}" alt="${movie.title}" class="w-full h-60 object-cover">
-        <div class="play-icon"><i class="fas fa-play"></i></div>
-      </div>
-      <div class="p-4">
-        <h3 class="text-lg font-semibold text-white">${movie.title}</h3>
-        <p class="text-sm text-gray-400">${movie.runtime} • ${movie.rating}</p>
-      </div>
-    `;
-    card.addEventListener("click", () => openMovie(movie, idx));
-    container.appendChild(card);
-  });
-  document.getElementById("close-modal")?.addEventListener("click", () => {
-    document.getElementById("playback-modal").classList.add("hidden");
-    document.getElementById("modal-video").pause();
-    document.body.style.overflow = "";
-  });
-});
-
-</script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -205,6 +161,30 @@ document.addEventListener("DOMContentLoaded", () => {
       color: white;
       font-size: 24px;
     }
+    #player-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 100;
+      display: none;
+    }
+    #player-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    #close-player {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 101;
+    }
   </style>
 </head>
 <body class="bg-black text-gray-100 min-h-screen">
@@ -267,7 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     </main>
 
-  <!-- Modal -->
+  <!-- Modal for MP4 videos -->
   <div id="playback-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-90">
     <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden modal-enter">
       <button id="close-modal" class="absolute top-4 right-4 z-50 text-white hover:text-blue-400 text-2xl transition">
@@ -311,6 +291,14 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Player container for non-MP4 videos -->
+  <div id="player-container">
+    <div id="close-player" class="text-white hover:text-blue-400">
+      <i class="fas fa-times"></i>
+    </div>
+    <iframe id="player-iframe" src="" allowfullscreen></iframe>
   </div>
 
   <footer class="bg-gray-900 py-12">
@@ -398,7 +386,7 @@ document.addEventListener("DOMContentLoaded", () => {
         title: "Justice League: Crisis on Infinite Earths Part One", 
         year: 2024,
         category: "justice",
-        video: "https://example.com/video3.mp4", 
+        video: "https://macdn.hakunaymatata.com/resource/d3f493124fb8e41dd83933475997072c.mp4?Expires=1749641780&Signature=VbzBE002HBrZxgO30fh6l3mjstETbwTyc68yj~UjkS3xLWOGJRyYd6WJ6UwoCwCFnV9FS3PL79XM2UJpx9WKoexX2uYBJ5AtZiD2RS9FO0yBYQDBNTSzHSaSsPOKhjbvIA78XdA~MGGcgQpR2x1YPX-VS4H3WBVa6~z7RNHlSyJYuOiKH6nicfN5cQaXckddiRiEwu6m0C7lVjkQPAmXvzo-UT1rhrpC~HCf1aEXpLWwkjFowHKVNv2D3ldrSPeZadCOCh9KZG-V~wSBScIPWAN32FODTbnQqoZZ6kD1MkvimvH-fW5wFYMg65ObrKkKJBHAUkb5j5OwIIjh3h03kw__&Key-Pair-Id=KMHN1LQ1HEUPL", 
         image: "https://m.media-amazon.com/images/M/MV5BZjA3YzE1YjktYzQyYi00OTJmLWE0OTMtYjdlZDA0YTU1ZTM3XkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_.jpg",
         runtime: "85 min",
         rating: "8.7/10",
@@ -2026,6 +2014,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const modalDescription = document.getElementById('modal-description');
     const modalCast = document.getElementById('modal-cast');
     const playButton = document.getElementById('play-button');
+    const playerContainer = document.getElementById('player-container');
+    const playerIframe = document.getElementById('player-iframe');
+    const closePlayer = document.getElementById('close-player');
 
     // Current filter state
     let currentFilter = 'all';
@@ -2143,16 +2134,31 @@ document.addEventListener("DOMContentLoaded", () => {
       movieElement.addEventListener('click', (e) => {
         // Don't trigger if clicking on ellipsis button
         if (!e.target.closest('button')) {
-          if (movie.video.endsWith('.mp4')) {
+          const ext = movie.video.split('.').pop().split('?')[0];
+          if (ext === 'mp4') {
             openModal(movie);
           } else {
-            // For .txt and .m3u8 links, open in player.html
-            window.open(`player.html?video=${encodeURIComponent(movie.video)}&title=${encodeURIComponent(movie.title)}`, '_blank');
+            // For .txt and .m3u8 links, open in player.html within the page
+            openPlayer(movie);
           }
         }
       });
       
       return movieElement;
+    }
+
+    // Open player for non-MP4 videos
+    function openPlayer(movie) {
+      playerIframe.src = `player.html?video=${encodeURIComponent(movie.video)}&title=${encodeURIComponent(movie.title)}`;
+      playerContainer.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Close player
+    function closePlayerHandler() {
+      playerContainer.style.display = 'none';
+      playerIframe.src = '';
+      document.body.style.overflow = '';
     }
 
     // Get display name for category
@@ -2274,6 +2280,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
       
+      // Player close
+      closePlayer.addEventListener('click', closePlayerHandler);
+      playerContainer.addEventListener('click', (e) => {
+        if (e.target === playerContainer) {
+          closePlayerHandler();
+        }
+      });
+      
       // Play button in modal
       playButton.addEventListener('click', () => {
         if (modalVideo.paused) {
@@ -2293,50 +2307,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initialize the app
     init();
-  
-function openMovie(movie, index) {
-  const ext = movie.video.split('.').pop().split('?')[0];
-  if (ext === "mp4") {
-    document.getElementById("modal-title").textContent = movie.title;
-    document.getElementById("modal-description").textContent = movie.description || "";
-    document.getElementById("episode-num").textContent = index + 1;
-    const videoElem = document.getElementById("modal-video");
-    videoElem.src = movie.video;
-    videoElem.load();
-    document.getElementById("playback-modal").classList.remove("hidden");
-    document.body.style.overflow = "hidden";
-  } else {
-    window.location.href = `player.html?video=${encodeURIComponent(movie.video)}`;
-  }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const container = document.getElementById("episodes");
-  if (!container) return;
-  container.innerHTML = "";
-  movies.forEach((movie, idx) => {
-    const card = document.createElement("div");
-    card.className = "episode-card bg-gray-800 rounded-lg overflow-hidden shadow-lg relative cursor-pointer";
-    card.innerHTML = `
-      <div class="relative">
-        <img src="${movie.image}" alt="${movie.title}" class="w-full h-60 object-cover">
-        <div class="play-icon"><i class="fas fa-play"></i></div>
-      </div>
-      <div class="p-4">
-        <h3 class="text-lg font-semibold text-white">${movie.title}</h3>
-        <p class="text-sm text-gray-400">${movie.runtime} • ${movie.rating}</p>
-      </div>
-    `;
-    card.addEventListener("click", () => openMovie(movie, idx));
-    container.appendChild(card);
-  });
-  document.getElementById("close-modal")?.addEventListener("click", () => {
-    document.getElementById("playback-modal").classList.add("hidden");
-    document.getElementById("modal-video").pause();
-    document.body.style.overflow = "";
-  });
-});
-
-</script>
+  </script>
 </body>
 </html>
