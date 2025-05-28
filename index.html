@@ -5,7 +5,52 @@
   <title>Warner Bros. Animation Collection | DC Universe Movies</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Stream all Warner Bros. Animation movies including DC Universe animated films and Mortal Kombat Legends.">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com">
+function openMovie(movie, index) {
+  const ext = movie.video.split('.').pop().split('?')[0];
+  if (ext === "mp4") {
+    document.getElementById("modal-title").textContent = movie.title;
+    document.getElementById("modal-description").textContent = movie.description || "";
+    document.getElementById("episode-num").textContent = index + 1;
+    const videoElem = document.getElementById("modal-video");
+    videoElem.src = movie.video;
+    videoElem.load();
+    document.getElementById("playback-modal").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  } else {
+    window.location.href = `player.html?video=${encodeURIComponent(movie.video)}`;
+  }
+}
+
+// Hook up cards
+document.addEventListener("DOMContentLoaded", () => {
+  const container = document.getElementById("episodes");
+  if (!container) return;
+  container.innerHTML = "";
+  movies.forEach((movie, idx) => {
+    const card = document.createElement("div");
+    card.className = "episode-card bg-gray-800 rounded-lg overflow-hidden shadow-lg relative cursor-pointer";
+    card.innerHTML = `
+      <div class="relative">
+        <img src="${movie.image}" alt="${movie.title}" class="w-full h-60 object-cover">
+        <div class="play-icon"><i class="fas fa-play"></i></div>
+      </div>
+      <div class="p-4">
+        <h3 class="text-lg font-semibold text-white">${movie.title}</h3>
+        <p class="text-sm text-gray-400">${movie.runtime} • ${movie.rating}</p>
+      </div>
+    `;
+    card.addEventListener("click", () => openMovie(movie, idx));
+    container.appendChild(card);
+  });
+  document.getElementById("close-modal")?.addEventListener("click", () => {
+    document.getElementById("playback-modal").classList.add("hidden");
+    document.getElementById("modal-video").pause();
+    document.body.style.overflow = "";
+  });
+});
+
+</script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -2249,6 +2294,51 @@
 
     // Initialize the app
     init();
-  </script>
+  
+function openMovie(movie, index) {
+  const ext = movie.video.split('.').pop().split('?')[0];
+  if (ext === "mp4") {
+    document.getElementById("modal-title").textContent = movie.title;
+    document.getElementById("modal-description").textContent = movie.description || "";
+    document.getElementById("episode-num").textContent = index + 1;
+    const videoElem = document.getElementById("modal-video");
+    videoElem.src = movie.video;
+    videoElem.load();
+    document.getElementById("playback-modal").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  } else {
+    window.location.href = `player.html?video=${encodeURIComponent(movie.video)}`;
+  }
+}
+
+// Hook up cards
+document.addEventListener("DOMContentLoaded", () => {
+  const container = document.getElementById("episodes");
+  if (!container) return;
+  container.innerHTML = "";
+  movies.forEach((movie, idx) => {
+    const card = document.createElement("div");
+    card.className = "episode-card bg-gray-800 rounded-lg overflow-hidden shadow-lg relative cursor-pointer";
+    card.innerHTML = `
+      <div class="relative">
+        <img src="${movie.image}" alt="${movie.title}" class="w-full h-60 object-cover">
+        <div class="play-icon"><i class="fas fa-play"></i></div>
+      </div>
+      <div class="p-4">
+        <h3 class="text-lg font-semibold text-white">${movie.title}</h3>
+        <p class="text-sm text-gray-400">${movie.runtime} • ${movie.rating}</p>
+      </div>
+    `;
+    card.addEventListener("click", () => openMovie(movie, idx));
+    container.appendChild(card);
+  });
+  document.getElementById("close-modal")?.addEventListener("click", () => {
+    document.getElementById("playback-modal").classList.add("hidden");
+    document.getElementById("modal-video").pause();
+    document.body.style.overflow = "";
+  });
+});
+
+</script>
 </body>
 </html>
