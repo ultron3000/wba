@@ -13,6 +13,11 @@
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(to bottom, #000000, #1a1a2e);
       min-height: 100vh;
+      transition: background 0.3s ease;
+    }
+    body.light-mode {
+      background: linear-gradient(to bottom, #f3f4f6, #e5e7eb);
+      color: #111827;
     }
     .episode-card:hover .play-icon {
       opacity: 1;
@@ -52,6 +57,39 @@
     .dc-blue:hover {
       background-color: #0066dd;
     }
+    .search-container {
+      transition: all 0.3s ease;
+    }
+    .search-container.focused {
+      box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.3);
+    }
+    .filter-btn.active {
+      background-color: #0077ff;
+      color: white;
+    }
+    .light-mode .filter-btn.active {
+      background-color: #0077ff;
+      color: white;
+    }
+    .light-mode .episode-card {
+      background-color: white;
+      color: #111827;
+    }
+    .light-mode .text-gray-300 {
+      color: #4b5563;
+    }
+    .light-mode .text-gray-400 {
+      color: #6b7280;
+    }
+    .light-mode .bg-gray-900 {
+      background-color: #f3f4f6;
+    }
+    .light-mode .bg-gray-800 {
+      background-color: #e5e7eb;
+    }
+    .light-mode .border-gray-800 {
+      border-color: #d1d5db;
+    }
   </style>
 </head>
 <body class="bg-black text-gray-100 min-h-screen">
@@ -65,31 +103,54 @@
                 <h1 class="text-3xl md:text-4xl font-bold text-yellow-400 glow-text">
                     Animation
                 </h1>
+            </div>
+            <div class="flex items-center space-x-4">
+              <button id="theme-toggle" class="p-2 rounded-full bg-gray-800 text-gray-300 hover:text-white transition">
+                <i class="fas fa-moon"></i>
+              </button>
+              <div class="search-container relative bg-gray-800 rounded-full px-4 py-2 flex items-center">
+                <i class="fas fa-search text-gray-400 mr-2"></i>
+                <input id="search-input" type="text" placeholder="Search movies..." class="bg-transparent border-none focus:outline-none text-white w-40 md:w-64">
+                <button id="clear-search" class="ml-2 text-gray-400 hover:text-white hidden">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
         </div>
-        <button class="md:hidden text-2xl text-white">
-          <i class="fas fa-bars"></i>
-        </button>
-      </div>
     </header>
 
-    <div class="container mx-auto px-4 flex-1 flex items-center">
-      <div class="max-w-4xl">
-        <h1 class="text-5xl md:text-6xl font-bold mb-4 gradient-text"></h1>
-        <div class="flex items-center space-x-4 mb-6">
-          <span class="dc-blue text-white px-3 py-1 rounded-full text-sm font-semibold">DC Universe</span>
-          <span class="text-gray-400">2007-2024</span>
-          <span class="text-gray-400">•</span>
-          <span class="text-gray-400">60+ Movies</span>
+    <main class="container mx-auto px-4 py-8">
+      <!-- Filters -->
+      <div class="mb-8">
+        <div class="flex flex-wrap gap-2 mb-4">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="dc">DC Universe</button>
+          <button class="filter-btn" data-filter="batman">Batman</button>
+          <button class="filter-btn" data-filter="superman">Superman</button>
+          <button class="filter-btn" data-filter="justice">Justice League</button>
+          <button class="filter-btn" data-filter="other">Other</button>
         </div>
-        <p class="text-lg text-gray-300 mb-6">
-          Experience the ultimate collection of Warner Bros. Animation films including DC Universe animated movies, 
-          Mortal Kombat Legends, and more. From Batman to Justice League, these animated features bring your favorite 
-          comic book stories to life.
-        </p>
-        
-    
-    <div id="episodes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
-  </main>
+        <div class="flex items-center">
+          <span class="text-gray-400 mr-2">Sort by:</span>
+          <select id="sort-select" class="bg-gray-800 text-white rounded px-3 py-1">
+            <option value="year-desc">Newest First</option>
+            <option value="year-asc">Oldest First</option>
+            <option value="rating-desc">Highest Rated</option>
+            <option value="rating-asc">Lowest Rated</option>
+            <option value="title-asc">A-Z</option>
+            <option value="title-desc">Z-A</option>
+          </select>
+        </div>
+      </div>
+      
+      <div id="episodes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
+      
+      <div id="no-results" class="text-center py-12 hidden">
+        <i class="fas fa-film text-5xl text-gray-500 mb-4"></i>
+        <h3 class="text-2xl font-bold text-gray-400">No movies found</h3>
+        <p class="text-gray-500">Try adjusting your search or filters</p>
+      </div>
+    </main>
 
   <!-- Modal -->
   <div id="playback-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-90">
@@ -105,7 +166,7 @@
           <div>
             <h3 id="modal-title" class="text-2xl font-bold mb-1 text-white"></h3>
             <div class="text-gray-400 text-sm">
-              <span>DC • <span id="episode-num"></span></span> • 75 min • <span class="text-blue-400">★ 8.5/10</span>
+              <span id="modal-category" class="dc-blue text-white px-2 py-0.5 rounded-full text-xs"></span> • <span id="episode-num"></span> • <span id="modal-runtime"></span> • <span class="text-blue-400" id="modal-rating"></span>
             </div>
           </div>
           <div class="flex space-x-3">
@@ -185,6 +246,7 @@
       { 
         title: "The Lord of the Rings: The War of the Rohirrim", 
         year: 2024,
+        category: "other",
         video: "https://example.com/video1.mp4", 
         image: "https://m.media-amazon.com/images/M/MV5BMTY5NjI2MjQxMl5BMl5BanBnXkFtZTgwMDA2MzM0NzE@._V1_.jpg",
         runtime: "120 min",
@@ -196,6 +258,7 @@
       { 
         title: "Watchmen: Chapter I", 
         year: 2024,
+        category: "dc",
         video: "https://example.com/video2.mp4", 
         image: "https://m.media-amazon.com/images/M/MV5BN2I0NzM4YjQtYjUxYi00Y2Q3LTk5NDEtYzYxNDU0OWFkZTY3XkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_.jpg",
         runtime: "90 min",
@@ -203,6 +266,810 @@
         description: "The first chapter of the animated Watchmen adaptation, bringing the iconic graphic novel to life.",
         director: "Zack Snyder",
         cast: "Jeffrey Dean Morgan, Carla Gugino, Jeremy Irons"
+      },
+      { 
+        title: "Justice League: Crisis on Infinite Earths Part One", 
+        year: 2024,
+        category: "justice",
+        video: "https://example.com/video3.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BZjA3YzE1YjktYzQyYi00OTJmLWE0OTMtYjdlZDA0YTU1ZTM3XkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_.jpg",
+        runtime: "85 min",
+        rating: "8.7/10",
+        description: "The Justice League faces their greatest challenge as the multiverse begins to collapse.",
+        director: "Jeff Wamester",
+        cast: "Darren Criss, Jensen Ackles, Stana Katic"
+      },
+      { 
+        title: "Batman: The Dark Knight Returns, Part 1", 
+        year: 2012,
+        category: "batman",
+        video: "https://example.com/video4.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BMzIxMDkxNDM2M15BMl5BanBnXkFtZTcwMDA5ODY1OQ@@._V1_.jpg",
+        runtime: "76 min",
+        rating: "8.4/10",
+        description: "Bruce Wayne returns as Batman to save Gotham from a new wave of crime and corruption.",
+        director: "Jay Oliva",
+        cast: "Peter Weller, Ariel Winter, David Selby"
+      },
+      { 
+        title: "Batman: Under the Red Hood", 
+        year: 2010,
+        category: "batman",
+        video: "https://example.com/video5.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNTkzNzIxOTYxNV5BMl5BanBnXkFtZTcwNjQ2NzI5Mw@@._V1_.jpg",
+        runtime: "75 min",
+        rating: "8.1/10",
+        description: "Batman faces his greatest failure when a mysterious vigilante known as the Red Hood appears in Gotham.",
+        director: "Brandon Vietti",
+        cast: "Bruce Greenwood, Jensen Ackles, John DiMaggio"
+      },
+      { 
+        title: "Justice League: The Flashpoint Paradox", 
+        year: 2013,
+        category: "justice",
+        video: "https://example.com/video6.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BZTUxNzlhNTItYzJkYi00YjliLWI4ODItM2I0YjM4ZGI4ZGRiXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_.jpg",
+        runtime: "81 min",
+        rating: "8.3/10",
+        description: "The Flash creates a fractured reality where the Justice League never formed and a war rages between Aquaman and Wonder Woman.",
+        director: "Jay Oliva",
+        cast: "Justin Chambers, Kevin McKidd, C. Thomas Howell"
+      },
+      { 
+        title: "Justice League: Doom", 
+        year: 2012,
+        category: "justice",
+        video: "https://example.com/video6.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BYmIwNjg5NjItZjRmZi00MDVlLThhYmQtNTBmNTRiY2I5Nzg1XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+        runtime: "77 min",
+        rating: "7.4/10",
+        description: "Vandal Savage uses information from Batman's secret files in a plot to wipe out the Justice League.",
+        director: "Lauren Montgomery",
+        cast: "Kevin Conroy, Tim Daly, Susan Eisenberg"
+      },
+      { 
+        title: "Batman: The Long Halloween, Part One", 
+        year: 2021,
+        category: "batman",
+        video: "https://example.com/video7.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BN2Y1OGU1ZDktYzVhNy00MzQ3LTg1OTMtMmVjMWQzZDAyMDQ0XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "85 min",
+        rating: "8.0/10",
+        description: "Batman, Captain Gordon and District Attorney Harvey Dent team up to bring down the Falcone crime family.",
+        director: "Chris Palmer",
+        cast: "Jensen Ackles, Josh Duhamel, Naya Rivera"
+      },
+      { 
+        title: "Superman: Man of Tomorrow", 
+        year: 2020,
+        category: "superman",
+        video: "https://example.com/video8.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNzYyYWY0OWItOWI5Ny00ZDk4LWExNDQtODAyYzVkOTA1YjU1XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "86 min",
+        rating: "7.8/10",
+        description: "Clark Kent works as an intern at the Daily Planet while learning to become the hero known as Superman.",
+        director: "Chris Palmer",
+        cast: "Darren Criss, Zachary Quinto, Alexandra Daddario"
+      },
+      { 
+        title: "Wonder Woman: Bloodlines", 
+        year: 2019,
+        category: "dc",
+        video: "https://example.com/video9.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjZmYzY0OTAtYjU5Ni00M2RlLTkwMmUtZWM5NjA0NjQzNmU5XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "83 min",
+        rating: "7.6/10",
+        description: "Wonder Woman must team up with a group of unlikely allies to take on a villainous organization.",
+        director: "Sam Liu",
+        cast: "Rosario Dawson, Jeffrey Donovan, Marie Avgeropoulos"
+      },
+      { 
+        title: "Green Lantern: Emerald Knights", 
+        year: 2011,
+        category: "dc",
+        video: "https://example.com/video10.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BMTQ3NTM0MjQ0OV5BMl5BanBnXkFtZTcwMjQ5OTc0NQ@@._V1_.jpg",
+        runtime: "84 min",
+        rating: "7.4/10",
+        description: "As the Green Lantern Corps face their greatest threat, veteran Lanterns share stories of their past.",
+        director: "Christopher Berkeley",
+        cast: "Nathan Fillion, Jason Isaacs, Elisabeth Moss"
+      },
+      { 
+        title: "Mortal Kombat Legends: Scorpion's Revenge", 
+        year: 2020,
+        category: "other",
+        video: "https://example.com/video11.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BN2Q5YzI1NmUtYjU1Yy00M2Q5LTg3OTktYjU0YzE0MDQ0MzQ5XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "80 min",
+        rating: "7.9/10",
+        description: "Hanzo Hasashi is killed by Sub-Zero and becomes the undead Scorpion, seeking vengeance.",
+        director: "Ethan Spaulding",
+        cast: "Patrick Seitz, Steve Blum, Jordan Rodrigues"
+      },
+      { 
+        title: "Batman: Hush", 
+        year: 2019,
+        category: "batman",
+        video: "https://example.com/video12.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "82 min",
+        rating: "7.7/10",
+        description: "Batman faces a mysterious villain known as Hush who seems to know all of his secrets.",
+        director: "Justin Copeland",
+        cast: "Jason O'Mara, Jennifer Morrison, Geoffrey Arend"
+      },
+      { 
+        title: "Batman Ninja", 
+        year: 2018,
+        category: "batman",
+        video: "https://example.com/video13.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BMjU1OTg1OTk0N15BMl5BanBnXkFtZTgwMzgyNTQ3NTM@._V1_.jpg",
+        runtime: "85 min",
+        rating: "7.1/10",
+        description: "Batman is transported to feudal Japan where he must fight his way back to the present.",
+        director: "Junpei Mizusaki",
+        cast: "Roger Craig Smith, Tony Hale, Grey Griffin"
+      },
+      { 
+        title: "Batman: The Killing Joke", 
+        year: 2016,
+        category: "batman",
+        video: "https://example.com/video14.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BMTdjZTliODYtNWExMi00NjQ1LWIzN2MtN2Q5NTg5NTk3NzliL2ltYWdlXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_.jpg",
+        runtime: "76 min",
+        rating: "6.4/10",
+        description: "The Joker sets out to prove that one bad day can make anyone as insane as he is.",
+        director: "Sam Liu",
+        cast: "Kevin Conroy, Mark Hamill, Tara Strong"
+      },
+      { 
+        title: "Batman: Gotham by Gaslight", 
+        year: 2018,
+        category: "batman",
+        video: "https://example.com/video15.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "78 min",
+        rating: "7.0/10",
+        description: "In an alternative Victorian era Gotham City, Batman hunts Jack the Ripper.",
+        director: "Sam Liu",
+        cast: "Bruce Greenwood, Jennifer Carpenter, Anthony Head"
+      },
+      { 
+        title: "Batman vs. Two-Face", 
+        year: 2017,
+        category: "batman",
+        video: "https://example.com/video16.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "72 min",
+        rating: "6.7/10",
+        description: "Batman and Robin team up with their old enemy Harvey Dent to stop Two-Face's crime spree.",
+        director: "Rick Morales",
+        cast: "Adam West, Burt Ward, William Shatner"
+      },
+      { 
+        title: "Batman: Bad Blood", 
+        year: 2016,
+        category: "batman",
+        video: "https://example.com/video17.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "72 min",
+        rating: "7.2/10",
+        description: "Batman is missing, and it's up to the extended Bat-family to protect Gotham City.",
+        director: "Jay Oliva",
+        cast: "Jason O'Mara, Yvonne Strahovski, Stuart Allan"
+      },
+      { 
+        title: "Batman vs. Robin", 
+        year: 2015,
+        category: "batman",
+        video: "https://example.com/video18.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "80 min",
+        rating: "7.1/10",
+        description: "Batman and his son Damian must overcome their differences to stop a secret society.",
+        director: "Jay Oliva",
+        cast: "Jason O'Mara, Stuart Allan, Jeremy Sisto"
+      },
+      { 
+        title: "Batman Unlimited: Monster Mayhem", 
+        year: 2015,
+        category: "batman",
+        video: "https://example.com/video19.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "72 min",
+        rating: "5.9/10",
+        description: "Batman teams up with The Flash, Green Arrow and Cyborg to stop The Joker and his monstrous allies.",
+        director: "Butch Lukic",
+        cast: "Roger Craig Smith, Troy Baker, Will Friedle"
+      },
+      { 
+        title: "Batman Unlimited: Animal Instincts", 
+        year: 2015,
+        category: "batman",
+        video: "https://example.com/video20.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "72 min",
+        rating: "5.8/10",
+        description: "Batman teams with The Flash, Green Arrow and Nightwing to stop The Penguin and his animal-themed villains.",
+        director: "Butch Lukic",
+        cast: "Roger Craig Smith, Troy Baker, Will Friedle"
+      },
+      { 
+        title: "Batman: Assault on Arkham", 
+        year: 2014,
+        category: "batman",
+        video: "https://example.com/video21.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "76 min",
+        rating: "7.5/10",
+        description: "Amanda Waller sends the Suicide Squad to break into Arkham Asylum to retrieve vital information.",
+        director: "Jay Oliva",
+        cast: "Kevin Conroy, Neal McDonough, Hynden Walch"
+      },
+      { 
+        title: "Batman vs. Teenage Mutant Ninja Turtles", 
+        year: 2019,
+        category: "batman",
+        video: "https://example.com/video22.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "87 min",
+        rating: "7.3/10",
+        description: "Batman teams up with the Teenage Mutant Ninja Turtles to stop Ra's al Ghul and Shredder.",
+        director: "Jake Castorena",
+        cast: "Troy Baker, Eric Bauza, Darren Criss"
+      },
+      { 
+        title: "Batman: The Dark Knight Returns, Part 2", 
+        year: 2013,
+        category: "batman",
+        video: "https://example.com/video23.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "76 min",
+        rating: "8.4/10",
+        description: "Batman comes out of retirement to fight crime and faces off against Superman.",
+        director: "Jay Oliva",
+        cast: "Peter Weller, Ariel Winter, Michael Emerson"
+      },
+      { 
+        title: "Batman: Year One", 
+        year: 2011,
+        category: "batman",
+        video: "https://example.com/video24.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "64 min",
+        rating: "7.4/10",
+        description: "Bruce Wayne takes his first steps toward becoming Batman while Jim Gordon struggles to be a good cop.",
+        director: "Sam Liu",
+        cast: "Ben McKenzie, Bryan Cranston, Eliza Dushku"
+      },
+      { 
+        title: "Batman Beyond: Return of the Joker", 
+        year: 2000,
+        category: "batman",
+        video: "https://example.com/video25.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "74 min",
+        rating: "7.8/10",
+        description: "Terry McGinnis, the new Batman, uncovers a dark secret from the original Batman's past.",
+        director: "Curt Geda",
+        cast: "Will Friedle, Kevin Conroy, Mark Hamill"
+      },
+      { 
+        title: "Son of Batman", 
+        year: 2014,
+        category: "batman",
+        video: "https://example.com/video26.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "74 min",
+        rating: "6.8/10",
+        description: "Batman discovers he has a son, Damian, who has been raised by the League of Assassins.",
+        director: "Ethan Spaulding",
+        cast: "Jason O'Mara, Stuart Allan, Morena Baccarin"
+      },
+      { 
+        title: "Legion of Super-Heroes", 
+        year: 2023,
+        category: "dc",
+        video: "https://example.com/video27.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "82 min",
+        rating: "6.5/10",
+        description: "Supergirl is recruited by the Legion of Super-Heroes to help stop a galactic threat.",
+        director: "Jeff Wamester",
+        cast: "Meg Donnelly, Harry Shum Jr., Darren Criss"
+      },
+      { 
+        title: "Batman and Superman: Battle of the Super Sons", 
+        year: 2022,
+        category: "dc",
+        video: "https://example.com/video28.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "79 min",
+        rating: "7.1/10",
+        description: "Jon Kent and Damian Wayne must team up when their fathers are kidnapped by Starro.",
+        director: "Matt Peters",
+        cast: "Jack Dylan Grazer, Jack Griffo, Laura Bailey"
+      },
+      { 
+        title: "Green Lantern: First Flight", 
+        year: 2009,
+        category: "dc",
+        video: "https://example.com/video29.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "77 min",
+        rating: "7.2/10",
+        description: "Test pilot Hal Jordan is recruited to become a Green Lantern and uncovers a conspiracy.",
+        director: "Lauren Montgomery",
+        cast: "Christopher Meloni, Victor Garber, Tricia Helfer"
+      },
+      { 
+        title: "Green Lantern: Beware My Power", 
+        year: 2022,
+        category: "dc",
+        video: "https://example.com/video30.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "87 min",
+        rating: "6.7/10",
+        description: "John Stewart takes on the mantle of Green Lantern and uncovers a dark secret.",
+        director: "Jeff Wamester",
+        cast: "Aldis Hodge, Jimmi Simpson, Brian Bloom"
+      },
+      { 
+        title: "Constantine: The House of Mystery", 
+        year: 2022,
+        category: "dc",
+        video: "https://example.com/video31.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "70 min",
+        rating: "7.0/10",
+        description: "John Constantine finds himself trapped in the House of Mystery with other DC characters.",
+        director: "Matt Peters",
+        cast: "Matt Ryan, Ray Chase, Damian O'Hare"
+      },
+      { 
+        title: "Constantine: City of Demons - The Movie", 
+        year: 2018,
+        category: "dc",
+        video: "https://example.com/video32.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "90 min",
+        rating: "7.1/10",
+        description: "John Constantine must save a young girl's soul from a demonic curse.",
+        director: "Doug Murphy",
+        cast: "Matt Ryan, Damian O'Hare, Laura Bailey"
+      },
+      { 
+        title: "Catwoman: Hunted", 
+        year: 2022,
+        category: "dc",
+        video: "https://example.com/video33.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "78 min",
+        rating: "6.5/10",
+        description: "Catwoman becomes the target of a global hunt by some of the world's most deadly villains.",
+        director: "Shinsuke Terasawa",
+        cast: "Elizabeth Gillies, Stephanie Beatriz, Jonathan Banks"
+      },
+      { 
+        title: "Injustice", 
+        year: 2021,
+        category: "dc",
+        video: "https://example.com/video34.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "78 min",
+        rating: "7.0/10",
+        description: "Superman becomes a tyrant after the Joker tricks him into killing Lois Lane.",
+        director: "Matt Peters",
+        cast: "Justin Hartley, Anson Mount, Laura Bailey"
+      },
+      { 
+        title: "Justice Society: World War II", 
+        year: 2021,
+        category: "justice",
+        video: "https://example.com/video35.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "84 min",
+        rating: "6.8/10",
+        description: "The Flash is transported to World War II where he joins the Justice Society.",
+        director: "Jeff Wamester",
+        cast: "Stana Katic, Matt Bomer, Omid Abtahi"
+      },
+      { 
+        title: "DC Showcase: Blue Beetle", 
+        year: 2021,
+        category: "dc",
+        video: "https://example.com/video36.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "15 min",
+        rating: "7.2/10",
+        description: "Ted Kord as Blue Beetle teams up with Booster Gold for a hilarious adventure.",
+        director: "Butch Lukic",
+        cast: "Matt Lanter, Max Mittelman, Tom Kenny"
+      },
+      { 
+        title: "Superman: Red Son", 
+        year: 2020,
+        category: "superman",
+        video: "https://example.com/video37.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "84 min",
+        rating: "6.8/10",
+        description: "An alternate reality where Superman's ship lands in Soviet Russia instead of Kansas.",
+        director: "Sam Liu",
+        cast: "Jason Isaacs, Amy Acker, Diedrich Bader"
+      },
+      { 
+        title: "The Death of Superman", 
+        year: 2018,
+        category: "superman",
+        video: "https://example.com/video38.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "81 min",
+        rating: "7.3/10",
+        description: "Superman makes the ultimate sacrifice to stop the unstoppable monster Doomsday.",
+        director: "Sam Liu",
+        cast: "Jerry O'Connell, Rebecca Romijn, Rainn Wilson"
+      },
+      { 
+        title: "Superman: Unbound", 
+        year: 2013,
+        category: "superman",
+        video: "https://example.com/video39.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "75 min",
+        rating: "7.0/10",
+        description: "Superman and Supergirl face the threat of Brainiac, who threatens to bottle Metropolis.",
+        director: "James Tucker",
+        cast: "Matt Bomer, John Noble, Stana Katic"
+      },
+      { 
+        title: "All Star Superman", 
+        year: 2011,
+        category: "superman",
+        video: "https://example.com/video40.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "76 min",
+        rating: "7.3/10",
+        description: "After saving the world from Lex Luthor, Superman begins to lose his powers.",
+        director: "Sam Liu",
+        cast: "James Denton, Christina Hendricks, Anthony LaPaglia"
+      },
+      { 
+        title: "Superman/Shazam!: The Return of Black Adam", 
+        year: 2010,
+        category: "superman",
+        video: "https://example.com/video41.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "25 min",
+        rating: "7.4/10",
+        description: "Superman teams up with Captain Marvel to stop the villainous Black Adam.",
+        director: "Joaquim Dos Santos",
+        cast: "George Newbern, Jerry O'Connell, Arnold Vosloo"
+      },
+      { 
+        title: "Superman vs. The Elite", 
+        year: 2012,
+        category: "superman",
+        video: "https://example.com/video42.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "76 min",
+        rating: "7.1/10",
+        description: "Superman faces off against a new team of superheroes who believe in killing criminals.",
+        director: "Michael Chang",
+        cast: "George Newbern, Pauley Perrette, Robin Atkin Downes"
+      },
+      { 
+        title: "Superman: Brainiac Attacks", 
+        year: 2006,
+        category: "superman",
+        video: "https://example.com/video43.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "75 min",
+        rating: "5.7/10",
+        description: "Superman must stop Brainiac and Lex Luthor from destroying Metropolis.",
+        director: "Curt Geda",
+        cast: "Tim Daly, Powers Boothe, Dana Delany"
+      },
+      { 
+        title: "Deathstroke: Knights & Dragons - The Movie", 
+        year: 2020,
+        category: "dc",
+        video: "https://example.com/video44.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "87 min",
+        rating: "6.9/10",
+        description: "Deathstroke must protect his family from a terrorist organization.",
+        director: "Sung Jin Ahn",
+        cast: "Michael Chiklis, Sasha Alexander, Delilah"
+      },
+      { 
+        title: "Suicide Squad: Hell to Pay", 
+        year: 2018,
+        category: "dc",
+        video: "https://example.com/video45.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "86 min",
+        rating: "7.1/10",
+        description: "Amanda Waller sends Task Force X on a mission to retrieve a mystical object.",
+        director: "Sam Liu",
+        cast: "Christian Slater, Tara Strong, C. Thomas Howell"
+      },
+      { 
+        title: "Justice League Dark: Apokolips War", 
+        year: 2020,
+        category: "justice",
+        video: "https://example.com/video46.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "90 min",
+        rating: "8.2/10",
+        description: "The Justice League makes a final stand against Darkseid in this epic conclusion.",
+        director: "Matt Peters",
+        cast: "Jerry O'Connell, Matt Ryan, Jason O'Mara"
+      },
+      { 
+        title: "Justice League vs. the Fatal Five", 
+        year: 2019,
+        category: "justice",
+        video: "https://example.com/video47.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "77 min",
+        rating: "6.9/10",
+        description: "The Justice League teams up with the Legion of Super-Heroes to stop the Fatal Five.",
+        director: "Sam Liu",
+        cast: "Kevin Conroy, George Newbern, Susan Eisenberg"
+      },
+      { 
+        title: "Justice League Dark", 
+        year: 2017,
+        category: "justice",
+        video: "https://example.com/video48.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "75 min",
+        rating: "7.4/10",
+        description: "Batman recruits supernatural heroes to combat a dark magical threat.",
+        director: "Jay Oliva",
+        cast: "Matt Ryan, Jason O'Mara, Camilla Luddington"
+      },
+      { 
+        title: "Justice League: Gods and Monsters", 
+        year: 2015,
+        category: "justice",
+        video: "https://example.com/video49.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "72 min",
+        rating: "7.2/10",
+        description: "An alternate reality where the Justice League are much darker versions of themselves.",
+        director: "Sam Liu",
+        cast: "Benjamin Bratt, Michael C. Hall, Tamara Taylor"
+      },
+      { 
+        title: "Justice League vs. Teen Titans", 
+        year: 2016,
+        category: "justice",
+        video: "https://example.com/video50.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "78 min",
+        rating: "7.2/10",
+        description: "Robin is sent to work with the Teen Titans but must help them when the Justice League is possessed.",
+        director: "Sam Liu",
+        cast: "Stuart Allan, Taissa Farmiga, Brandon Soo Hoo"
+      },
+      { 
+        title: "Justice League: Throne of Atlantis", 
+        year: 2015,
+        category: "justice",
+        video: "https://example.com/video51.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "72 min",
+        rating: "6.8/10",
+        description: "Aquaman must embrace his destiny as King of Atlantis while the Justice League battles Ocean Master.",
+        director: "E Ethan Spaulding",
+        cast: "Matt Lanter, Sumalee Montano, Jerry O'Connell"
+      },
+      { 
+        title: "Justice League: War", 
+        year: 2014,
+        category: "justice",
+        video: "https://example.com/video52.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "79 min",
+        rating: "7.0/10",
+        description: "The Justice League forms for the first time to stop Darkseid's invasion of Earth.",
+        director: "Jay Oliva",
+        cast: "Alan Tudyk, Michelle Monaghan, Justin Kirk"
+      },
+      { 
+        title: "JLA Adventures: Trapped in Time", 
+        year: 2014,
+        category: "justice",
+        video: "https://example.com/video53.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "52 min",
+        rating: "6.7/10",
+        description: "The Justice League must stop the Legion of Doom from altering history.",
+        director: "Butch Lukic",
+        cast: "Diedrich Bader, Kevin Conroy, Grey Griffin"
+      },
+      { 
+        title: "Justice League: The New Frontier", 
+        year: 2008,
+        category: "justice",
+        video: "https://example.com/video54.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "75 min",
+        rating: "7.5/10",
+        description: "Set in the 1950s, superheroes must unite to face a world-ending threat.",
+        director: "Dave Bullock",
+        cast: "David Boreanaz, Neil Patrick Harris, Kyle MacLachlan"
+      },
+      { 
+        title: "DC Showcase: Adam Strange", 
+        year: 2020,
+        category: "dc",
+        video: "https://example.com/video55.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "15 min",
+        rating: "7.0/10",
+        description: "Adam Strange is transported to the planet Rann where he becomes its protector.",
+        director: "Butch Lukic",
+        cast: "Charlie Weber, Roger Craig Smith, Ray Chase"
+      },
+      { 
+        title: "Wonder Woman", 
+        year: 2009,
+        category: "dc",
+        video: "https://example.com/video56.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "74 min",
+        rating: "7.4/10",
+        description: "Wonder Woman's origin story as she leaves Themyscira to fight in World War I.",
+        director: "Lauren Montgomery",
+        cast: "Keri Russell, Nathan Fillion, Alfred Molina"
+      },
+      { 
+        title: "Smallfoot", 
+        year: 2018,
+        category: "other",
+        video: "https://example.com/video57.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "96 min",
+        rating: "6.6/10",
+        description: "A Yeti is convinced that the elusive creatures known as humans really do exist.",
+        director: "Karey Kirkpatrick",
+        cast: "Channing Tatum, James Corden, Zendaya"
+      },
+      { 
+        title: "Storks", 
+        year: 2016,
+        category: "other",
+        video: "https://example.com/video58.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "89 min",
+        rating: "6.8/10",
+        description: "Storks have moved on from delivering babies to packages, but an accidental order changes everything.",
+        director: "Nicholas Stoller",
+        cast: "Andy Samberg, Katie Crown, Kelsey Grammer"
+      },
+      { 
+        title: "Batman: Mystery of the Batwoman", 
+        year: 2003,
+        category: "batman",
+        video: "https://example.com/video59.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "75 min",
+        rating: "6.7/10",
+        description: "Batman investigates the identity of the mysterious new vigilante Batwoman.",
+        director: "Curt Geda",
+        cast: "Kevin Conroy, Kyra Sedgwick, Kelly Ripa"
+      },
+      { 
+        title: "Batman & Mr. Freeze: SubZero", 
+        year: 1998,
+        category: "batman",
+        video: "https://example.com/video60.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "67 min",
+        rating: "7.3/10",
+        description: "Mr. Freeze kidnaps Batgirl to save his dying wife, forcing Batman and Robin to intervene.",
+        director: "Boyd Kirkland",
+        cast: "Kevin Conroy, Michael Ansara, Loren Lester"
+      },
+      { 
+        title: "Batman: Mask of the Phantasm", 
+        year: 1993,
+        category: "batman",
+        video: "https://example.com/video61.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "76 min",
+        rating: "7.8/10",
+        description: "Batman is framed by a mysterious vigilante while confronting his past with Andrea Beaumont.",
+        director: "Eric Radomski",
+        cast: "Kevin Conroy, Dana Delany, Hart Bochner"
+      },
+      { 
+        title: "Superman: The Last Son of Krypton", 
+        year: 1996,
+        category: "superman",
+        video: "https://example.com/video62.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "61 min",
+        rating: "7.2/10",
+        description: "Superman's origin story from Krypton's destruction to his arrival in Metropolis.",
+        director: "Scott Jeralds",
+        cast: "Tim Daly, Dana Delany, Clancy Brown"
+      },
+      { 
+        title: "Superman: The Doomsday Wars", 
+        year: 1998,
+        category: "superman",
+        video: "https://example.com/video63.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "60 min",
+        rating: "6.8/10",
+        description: "Superman battles his greatest foe, Doomsday, in this animated adaptation.",
+        director: "Curt Geda",
+        cast: "Tim Daly, Dana Delany, Malcolm McDowell"
+      },
+      { 
+        title: "The Batman vs. Dracula", 
+        year: 2005,
+        category: "batman",
+        video: "https://example.com/video64.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "83 min",
+        rating: "6.6/10",
+        description: "Batman must stop Dracula after the vampire is accidentally resurrected in Gotham.",
+        director: "Michael Goguen",
+        cast: "Rino Romano, Peter Stormare, Tara Strong"
+      },
+      { 
+        title: "Batman: Gotham Knight", 
+        year: 2008,
+        category: "batman",
+        video: "https://example.com/video65.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "76 min",
+        rating: "6.4/10",
+        description: "Six animated shorts that explore Batman's transition from beginner to Dark Knight.",
+        director: "Various",
+        cast: "Kevin Conroy, Jason Marsden, Gary Dourdan"
+      },
+      { 
+        title: "Superman/Batman: Public Enemies", 
+        year: 2009,
+        category: "dc",
+        video: "https://example.com/video66.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "67 min",
+        rating: "7.1/10",
+        description: "Superman and Batman become fugitives when Lex Luthor becomes President and frames them.",
+        director: "Sam Liu",
+        cast: "Kevin Conroy, Tim Daly, Clancy Brown"
+      },
+      { 
+        title: "Superman/Batman: Apocalypse", 
+        year: 2010,
+        category: "dc",
+        video: "https://example.com/video67.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "78 min",
+        rating: "7.3/10",
+        description: "Superman and Batman must protect Supergirl from Darkseid's forces.",
+        director: "Lauren Montgomery",
+        cast: "Kevin Conroy, Tim Daly, Susan Eisenberg"
+      },
+      { 
+        title: "Batman: The Brave and the Bold - The Videogame", 
+        year: 2010,
+        category: "batman",
+        video: "https://example.com/video68.mp4", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmZTE3MjQtYzFkYi00YjA5LThkYjItYjM0MWQ5Njk5ZGY3XkEyXkFqcGdeQXVyMTEyMjM2NDc2._V1_.jpg",
+        runtime: "60 min",
+        rating: "6.5/10",
+        description: "Batman teams up with various DC heroes to stop a cosmic threat.",
+        director: "Various",
+        cast: "Diedrich Bader, John DiMaggio, James Arnold Taylor"
       },
       { 
         title: "Justice League: Crisis on Infinite Earths Part One", 
